@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import pickle
+import joblib
 import numpy as np
 
 app = FastAPI(title="ML Model API")
 
 # Load model once at startup
 with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+    model = joblib.load(f)
 
 # Define your input schema — adjust fields to match your model's features
 class InputData(BaseModel):
