@@ -25,16 +25,4 @@ def predict(data: InputData):
     features = np.array([[data.feature1, data.feature2, data.feature3]])
     prediction = model.predict(features)
     return {"prediction": prediction.tolist()}
-```
 
-> If your model was trained on the Iowa housing dataset (like your Kaggle project), swap the fields to match those column names (e.g. `LotArea`, `YearBuilt`, `OverallQual`, etc.)
-
----
-
-## Step 2 — `requirements.txt`
-```
-fastapi
-uvicorn[standard]
-scikit-learn
-numpy
-pandas
