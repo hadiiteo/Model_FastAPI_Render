@@ -11,10 +11,13 @@ with open("model.pkl", "rb") as f:
 
 # Define your input schema — adjust fields to match your model's features
 class InputData(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
-    # ... add all your features here
+    LotArea: int
+    YearBuilt: int
+    FirstFlrSF: int   # renamed — Python doesn't allow '1st' as variable name
+    SecondFlrSF: int  # renamed — same reason
+    FullBath: int
+    BedroomAbvGr: int
+    TotRmsAbvGrd: int
 
 @app.get("/")
 def root():
@@ -22,7 +25,15 @@ def root():
 
 @app.post("/predict")
 def predict(data: InputData):
-    features = np.array([[data.feature1, data.feature2, data.feature3]])
+    features = np.array([[
+        data.LotArea,
+        data.YearBuilt,
+        data.FirstFlrSF,   # mapped back to correct order
+        data.SecondFlrSF,
+        data.FullBath,
+        data.BedroomAbvGr,
+        data.TotRmsAbvGrd
+    ]])
     prediction = model.predict(features)
-    return {"prediction": prediction.tolist()}
+    return {"predicted_price": round(float(prediction[0]), 2)}
 
