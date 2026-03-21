@@ -131,6 +131,59 @@ docker run -p 8000:8000 housing-predictor
 
 ---
 
+## 🔧 Troubleshooting & Lessons from the Trenches
+
+### 1. `pickle` vs `joblib` for model export
+
+Initially used Python's built-in `pickle` to save the model, which worked locally but caused errors on Render during loading. The fix was to switch to `joblib`, which is the recommended way to serialise scikit-learn models.
+
+```python
+# ❌ What I tried first — caused issues on Render
+import pickle
+with open("model.pkl", "wb") as f:
+    pickle.dump(model, f)
+
+# ✅ Correct approach
+import joblib
+joblib.dump(model, "model.pkl")
+
+# Loading
+model = joblib.load("model.pkl")
+```
+
+---
+
+### 2. `requirements.txt` is critical for Render
+
+Render uses `requirements.txt` to install dependencies when building the container. Missing or unpinned versions caused version mismatch errors between the environment where the model was trained and where it was served.
+
+Pinning exact versions resolved the issue:
+
+```
+scikit-learn==1.2.2
+numpy==1.26.4
+```
+
+> ⚠️ The model must be trained and exported using the **same version** of scikit-learn that is installed at runtime. A version mismatch will cause the model to fail to load.
+
+---
+
+### 3. Using Render Events to debug deployments
+
+Render's **Events** tab (in the service dashboard) is invaluable for understanding what is happening during a deployment. It shows each step Render takes when pulling code from GitHub — including dependency installation, build logs, and startup errors.
+
+This was the first hands-on experience seeing what happens "behind the scenes" when Render picks up a GitHub push:
+
+1. Render detects a new commit on the connected branch
+2. It pulls the latest code
+3. Runs `pip install -r requirements.txt`
+4. Starts the web service with the defined start command
+5. Reports success or failure with logs
+
+Checking the Events log was the fastest way to identify why a deployment was failing.
+
+---
+
 ## 🔭 Next Improvements
 
 - [ ] **GitHub CI/CD** — automate testing and deployment on every push
