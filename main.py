@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import FileResponse, HTMLResponse
+from evidently.report import Report
+from evidently.metric_preset import DataDriftPreset
 import joblib
 import numpy as np
 import pandas as pd
@@ -16,6 +18,7 @@ with open("model.pkl", "rb") as f:
 FEATURE_COLS = ["LotArea", "YearBuilt", "FirstFlrSF", "SecondFlrSF",
                 "FullBath", "BedroomAbvGr", "TotRmsAbvGrd"]
 LOG_FILE = "logs/predictions.csv"
+REFERENCE_FILE = "reference_data.csv"
 os.makedirs("logs", exist_ok=True)
 
 class InputData(BaseModel):
