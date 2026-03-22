@@ -54,13 +54,22 @@ def predict(data: InputData):
 
     return {"predicted_price": predicted_price}
 
+
 @app.get("/report", response_class=HTMLResponse)
 def get_report():
-    report_path = "reports/data_drift.html"
-    if not os.path.exists(report_path):
-        return HTMLResponse("<h2>No report yet. Run monitor.py first.</h2>")
-    with open(report_path) as f:
-        return HTMLResponse(f.read())
+    if not os.path.exists(LOG_FILE):
+        return HTMLResponse("<h2>No predictions logged yet. Hit /predict first.</h2>")
+    
+    if not os.path.exists(REFERENCE_FILE):
+        return HTMLResponse("<h2>No reference data found. Add reference_data.csv to the repo.</h2>")
+
+    reference = pd.read_csv(REFERENCE_FILE)
+    current = pd.read_csv(LOG_FILE).drop(columns=["timestamp"], errors="ignore")
+
+    report = Report(metrics=[DataDriftPreset()])
+    report.run(reference_data=reference, current_data=current)
+
+    return HTMLResponse(report.get_html())
 
 @app.get("/download-logs")
 def download_logs():
