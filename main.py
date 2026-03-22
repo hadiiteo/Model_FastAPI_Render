@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 import joblib
 import numpy as np
 import pandas as pd
+import subprocess
 from datetime import datetime
 import os
 
@@ -84,3 +85,13 @@ def logs_status():
         "predictions_csv_exists": os.path.exists(LOG_FILE),
         "file_size_bytes": os.path.getsize(LOG_FILE) if os.path.exists(LOG_FILE) else 0
     }
+
+@app.post("/run-monitor")
+def run_monitor():
+    if not os.path.exists(LOG_FILE):
+        return {"error": "No prediction logs yet"}
+    try:
+        subprocess.run(["python", "monitor.py"], check=True)
+        return {"status": "Report generated. Visit /report to view."}
+    except subprocess.CalledProcessError as e:
+        return {"error": str(e)}
