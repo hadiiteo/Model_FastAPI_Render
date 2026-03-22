@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 import joblib
 import numpy as np
 import pandas as pd
@@ -61,3 +61,17 @@ def get_report():
         return HTMLResponse("<h2>No report yet. Run monitor.py first.</h2>")
     with open(report_path) as f:
         return HTMLResponse(f.read())
+
+@app.get("/download-logs")
+def download_logs():
+    if not os.path.exists(LOG_FILE):
+        return {"error": "No logs yet"}
+    return FileResponse(LOG_FILE, filename="predictions.csv")
+
+@app.get("/logs-status")
+def logs_status():
+    return {
+        "logs_folder_exists": os.path.exists("logs"),
+        "predictions_csv_exists": os.path.exists(LOG_FILE),
+        "file_size_bytes": os.path.getsize(LOG_FILE) if os.path.exists(LOG_FILE) else 0
+    }
