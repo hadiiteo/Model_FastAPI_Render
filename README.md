@@ -18,7 +18,7 @@ This project demonstrates an end-to-end ML workflow — from training a simple r
 
 ## 🏗️ Solution Architecture
 
-[![Solution Architecture](https://github.com/hadiiteo/Model_FastAPI_Render/blob/main/architecturev2.svg)](architecturev2.svg)
+[![Solution Architecture](https://raw.githubusercontent.com/hadiiteo/Model_FastAPI_Render/main/architecture.svg)](https://github.com/hadiiteo/Model_FastAPI_Render/blob/main/architecture.svg)
 
 ---
 
@@ -138,10 +138,16 @@ docker run -p 8000:8000 housing-predictor
 ## 📁 Project Structure
 
 ```
-├── main.py              # FastAPI app, prediction endpoint, and drift report route
-├── model.pkl            # Trained scikit-learn model (exported via joblib)
-├── Dockerfile           # Container definition for the API
-├── requirements.txt     # Python dependencies
+├── main.py                  # FastAPI app, prediction endpoint, and drift report route
+├── monitor.py               # Monitoring script for data drift analysis (Evidently AI)
+├── model.pkl                # Trained scikit-learn model (exported via joblib)
+├── reference_data.csv       # Reference dataset used as baseline for drift comparison
+├── reports/                 # Generated Evidently HTML drift reports
+├── Dockerfile               # Container definition for the API
+├── requirements.txt         # Python dependencies (includes evidently)
+├── architecture.svg         # Solution architecture diagram
+├── architecturev2.svg       # Updated solution architecture diagram
+├── report-screenshot.png    # Screenshot of the live Evidently drift report
 └── README.md
 ```
 
