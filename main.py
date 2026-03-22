@@ -32,10 +32,15 @@ def root():
 
 @app.post("/predict")
 def predict(data: InputData):
-    features = np.array([[
-        data.LotArea, data.YearBuilt, data.FirstFlrSF, data.SecondFlrSF,
-        data.FullBath, data.BedroomAbvGr, data.TotRmsAbvGrd
-    ]])
+    features = pd.DataFrame([{
+        "LotArea": data.LotArea,
+        "YearBuilt": data.YearBuilt,
+        "1stFlrSF": data.FirstFlrSF,
+        "2ndFlrSF": data.SecondFlrSF,
+        "FullBath": data.FullBath,
+        "BedroomAbvGr": data.BedroomAbvGr,
+        "TotRmsAbvGrd": data.TotRmsAbvGrd
+    }])
     prediction = model.predict(features)
     predicted_price = round(float(prediction[0]), 2)
 
