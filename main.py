@@ -67,13 +67,15 @@ def get_report():
     if not os.path.exists(REFERENCE_FILE):
         return HTMLResponse("<h2>No reference data found. Add reference_data.csv to the repo.</h2>")
 
-    reference = pd.read_csv(REFERENCE_FILE)
-    current = pd.read_csv(LOG_FILE).drop(columns=["timestamp"], errors="ignore")
+    reference = pd.read_csv(REFERENCE_FILE).drop(columns=["predicted_price"], errors="ignore")
+    current = pd.read_csv(LOG_FILE).drop(columns=["timestamp", "predicted_price"], errors="ignore")
 
-    report = Report(metrics=[DataDriftPreset()])
-    report.run(reference_data=reference, current_data=current)
-    
-    return HTMLResponse(report.to_html())
+    report = Report([DataDriftPreset()])
+    my_eval = report.run(reference, current)
+    my_eval.save_html("reports/data_drift.html")
+
+    with open("reports/data_drift.html") as f:
+        return HTMLResponse(f.read())
 
 @app.get("/download-logs")
 def download_logs():
