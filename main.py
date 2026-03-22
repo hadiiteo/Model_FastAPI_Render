@@ -45,7 +45,7 @@ def predict(data: InputData):
     predicted_price = round(float(prediction[0]), 2)
 
     # Log each prediction
-    log_row = {col: val for col, val in zip(FEATURE_COLS, features[0])}
+    log_row = features.iloc[0].to_dict()
     log_row["predicted_price"] = predicted_price
     log_row["timestamp"] = datetime.utcnow().isoformat()
     
