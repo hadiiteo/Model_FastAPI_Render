@@ -2,19 +2,25 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
+import pandas as pd
+from datetime import datetime
+import os
 
 app = FastAPI(title="ML Model API")
 
-# Load model once at startup
 with open("model.pkl", "rb") as f:
     model = joblib.load(f)
 
-# Define your input schema — adjust fields to match your model's features
+FEATURE_COLS = ["LotArea", "YearBuilt", "FirstFlrSF", "SecondFlrSF",
+                "FullBath", "BedroomAbvGr", "TotRmsAbvGrd"]
+LOG_FILE = "logs/predictions.csv"
+os.makedirs("logs", exist_ok=True)
+
 class InputData(BaseModel):
     LotArea: int
     YearBuilt: int
-    FirstFlrSF: int   # renamed — Python doesn't allow '1st' as variable name
-    SecondFlrSF: int  # renamed — same reason
+    FirstFlrSF: int
+    SecondFlrSF: int
     FullBath: int
     BedroomAbvGr: int
     TotRmsAbvGrd: int
@@ -26,14 +32,18 @@ def root():
 @app.post("/predict")
 def predict(data: InputData):
     features = np.array([[
-        data.LotArea,
-        data.YearBuilt,
-        data.FirstFlrSF,   # mapped back to correct order
-        data.SecondFlrSF,
-        data.FullBath,
-        data.BedroomAbvGr,
-        data.TotRmsAbvGrd
+        data.LotArea, data.YearBuilt, data.FirstFlrSF, data.SecondFlrSF,
+        data.FullBath, data.BedroomAbvGr, data.TotRmsAbvGrd
     ]])
     prediction = model.predict(features)
-    return {"predicted_price": round(float(prediction[0]), 2)}
+    predicted_price = round(float(prediction[0]), 2)
 
+    # Log each prediction
+    log_row = {col: val for col, val in zip(FEATURE_COLS, features[0])}
+    log_row["predicted_price"] = predicted_price
+    log_row["timestamp"] = datetime.utcnow().isoformat()
+    
+    df_log = pd.DataFrame([log_row])
+    df_log.to_csv(LOG_FILE, mode="a", header=not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0, index=False)
+
+    return {"predicted_price": predicted_price}
