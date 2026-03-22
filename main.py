@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import HTMLResponse
 import joblib
 import numpy as np
 import pandas as pd
@@ -47,3 +48,11 @@ def predict(data: InputData):
     df_log.to_csv(LOG_FILE, mode="a", header=not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0, index=False)
 
     return {"predicted_price": predicted_price}
+
+@app.get("/report", response_class=HTMLResponse)
+def get_report():
+    report_path = "reports/data_drift.html"
+    if not os.path.exists(report_path):
+        return HTMLResponse("<h2>No report yet. Run monitor.py first.</h2>")
+    with open(report_path) as f:
+        return HTMLResponse(f.read())
