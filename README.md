@@ -18,7 +18,7 @@ This project demonstrates an end-to-end ML workflow — from training a simple r
 
 ## 🏗️ Solution Architecture
 
-[![Solution Architecture](https://github.com/hadiiteo/Model_FastAPI_Render/raw/main/architecture.svg)](architecture.svg)
+[![Solution Architecture](https://github.com/hadiiteo/Model_FastAPI_Render/architecture.svg)](architecture.svg)
 
 ---
 
