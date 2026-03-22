@@ -72,8 +72,8 @@ def get_report():
 
     report = Report(metrics=[DataDriftPreset()])
     report.run(reference_data=reference, current_data=current)
-
-    return HTMLResponse(report.get_html())
+    
+    return HTMLResponse(report.to_html())
 
 @app.get("/download-logs")
 def download_logs():
