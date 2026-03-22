@@ -2,7 +2,8 @@
 
 A beginner machine learning project based on Kaggle's **Intro to Machine Learning** course. The model is trained on the Iowa Housing dataset, served via **FastAPI**, and deployed as a live web service on **Render**.
 
-🔗 **Live API:** [https://model-fastapi-render.onrender.com/docs](https://model-fastapi-render.onrender.com/docs)  
+🔗 **Live API:** https://model-fastapi-render.onrender.com/docs  
+📊 **Drift Report:** https://model-fastapi-render.onrender.com/report  
 📓 **Kaggle Notebook:** [exercise-your-first-machine-learning-model](https://www.kaggle.com/code/haditeo/exercise-your-first-machine-learning-model/)
 
 ---
@@ -17,23 +18,21 @@ This project demonstrates an end-to-end ML workflow — from training a simple r
 
 ## 🏗️ Solution Architecture
 
-<p align="center">
-  <img src="./architecture.svg" alt="Solution Architecture" width="680"/>
-</p>
+[![Solution Architecture](https://github.com/hadiiteo/Model_FastAPI_Render/raw/main/architecture.svg)](architecture.svg)
 
 ---
 
 ## 🧠 Model
 
-- **Type:** Decision Tree Regressor (scikit-learn)
-- **Dataset:** Iowa Housing (Kaggle Intro to Machine Learning)
-- **Target:** Predicted house sale price (USD)
-- **Export format:** `.pkl` via `joblib`
+* **Type:** Decision Tree Regressor (scikit-learn)
+* **Dataset:** Iowa Housing (Kaggle Intro to Machine Learning)
+* **Target:** Predicted house sale price (USD)
+* **Export format:** `.pkl` via `joblib`
 
 ### Input Features
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `LotArea` | `int` | Lot size in square feet |
 | `YearBuilt` | `int` | Year the house was built |
 | `FirstFlrSF` | `int` | First floor area in square feet |
@@ -47,13 +46,38 @@ This project demonstrates an end-to-end ML workflow — from training a simple r
 ## 🚀 Tech Stack
 
 | Layer | Tool |
-|---|---|
+| --- | --- |
 | Model Training | Python, scikit-learn, pandas (Kaggle) |
 | Model Export | `joblib` → `.pkl` |
 | API Framework | FastAPI |
 | Containerisation | Docker |
 | Deployment | Render (free tier, GitHub integration) |
 | Source Control | GitHub |
+| Model Monitoring | Evidently AI |
+
+---
+
+## 📊 Model Monitoring — Evidently AI
+
+This project integrates **[Evidently AI](https://www.evidentlyai.com/)** to monitor model health and detect data drift over time.
+
+### Drift Report
+
+A pre-generated **Data Drift Report** is served directly from the API and can be accessed at:
+
+🔗 https://model-fastapi-render.onrender.com/report
+
+![Drift Report Screenshot](report-screenshot.png)
+
+The report compares the **reference dataset** (training data) against a **current dataset** (recent predictions or test data) to identify:
+
+* **Feature drift** — whether the distribution of input features has shifted
+* **Dataset-level drift** — an overall drift score across all features
+* Individual feature statistics (mean, std, distribution plots)
+
+### Why Drift Monitoring Matters
+
+In production, real-world data can drift away from the training distribution over time — house prices, market conditions, and buyer behaviour all change. Without monitoring, a model can silently degrade in accuracy. Evidently AI makes this observable.
 
 ---
 
@@ -71,7 +95,8 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Then open [http://localhost:8000/docs](http://localhost:8000/docs) to access the interactive Swagger UI.
+Then open http://localhost:8000/docs to access the interactive Swagger UI.  
+And http://localhost:8000/report to view the Drift Report.
 
 **Or run with Docker:**
 
@@ -87,6 +112,7 @@ docker run -p 8000:8000 housing-predictor
 **Endpoint:** `POST /predict`
 
 **Request body (JSON):**
+
 ```json
 {
   "LotArea": 8450,
@@ -100,6 +126,7 @@ docker run -p 8000:8000 housing-predictor
 ```
 
 **Response:**
+
 ```json
 {
   "predicted_price": 208500.0
@@ -111,7 +138,7 @@ docker run -p 8000:8000 housing-predictor
 ## 📁 Project Structure
 
 ```
-├── main.py              # FastAPI app and prediction endpoint
+├── main.py              # FastAPI app, prediction endpoint, and drift report route
 ├── model.pkl            # Trained scikit-learn model (exported via joblib)
 ├── Dockerfile           # Container definition for the API
 ├── requirements.txt     # Python dependencies
@@ -122,12 +149,13 @@ docker run -p 8000:8000 housing-predictor
 
 ## 💡 Key Lessons Learned
 
-- A **CSV file** is required as the data source to train the model
-- The trained model is exported as a **`.pkl` file** using `joblib` for deployment
-- **FastAPI** is used to expose the model as a REST API endpoint
-- **Docker** packages the FastAPI app and model into a portable container, ensuring consistent behaviour across environments
-- **Render** provides a free hosting service with direct **GitHub integration**, making deployment straightforward — any push to the main branch triggers a redeploy
-- The entire pipeline (train → export → containerise → serve → deploy) can be assembled using free tools
+* A **CSV file** is required as the data source to train the model
+* The trained model is exported as a **`.pkl` file** using `joblib` for deployment
+* **FastAPI** is used to expose the model as a REST API endpoint
+* **Docker** packages the FastAPI app and model into a portable container, ensuring consistent behaviour across environments
+* **Render** provides a free hosting service with direct **GitHub integration**, making deployment straightforward — any push to the main branch triggers a redeploy
+* **Evidently AI** generates HTML drift reports that can be served directly as a FastAPI route, enabling lightweight model observability without a separate dashboard
+* The entire pipeline (train → export → containerise → serve → deploy → monitor) can be assembled using free tools
 
 ---
 
@@ -253,18 +281,18 @@ Checking the Events log was the fastest way to identify why a deployment was fai
 
 ## 🔭 Next Improvements
 
-- [ ] **GitHub CI/CD** — automate testing and deployment on every push
-- [ ] **Evidently AI integration** — monitor model performance and detect data drift over time
+* **GitHub CI/CD** — automate testing and deployment on every push
+* **Scheduled drift re-generation** — automate the Evidently report to refresh against live prediction logs on a schedule
 
 ---
 
 ## 📚 Learning Reference
 
-- [Kaggle — Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Docker Documentation](https://docs.docker.com/)
-- [Render Deployment Guide](https://render.com/docs)
-- [Evidently AI](https://www.evidentlyai.com/)
+* [Kaggle — Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning)
+* [FastAPI Documentation](https://fastapi.tiangolo.com/)
+* [Docker Documentation](https://docs.docker.com/)
+* [Render Deployment Guide](https://render.com/docs)
+* [Evidently AI](https://www.evidentlyai.com/)
 
 ---
 
